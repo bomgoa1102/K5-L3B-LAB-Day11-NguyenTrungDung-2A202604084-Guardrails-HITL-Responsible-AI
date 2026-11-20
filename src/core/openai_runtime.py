@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any, Callable
+import asyncio
 
 from core.config import (
     get_red_model,
@@ -45,6 +46,7 @@ class OpenAIRunner:
     client_kwargs: dict = field(default_factory=dict)
     input_hooks: list[Callable[[str], str | None]] = field(default_factory=list)
     output_hooks: list[Callable[[str], str]] = field(default_factory=list)
+    rate_limit_retry_delays: tuple[int, ...] = ()
 
     def _client(self):
         from openai import OpenAI
@@ -62,14 +64,25 @@ class OpenAIRunner:
             return block_msg
 
         client = self._client()
-        completion = client.chat.completions.create(
-            model=self.model,
-            messages=[
-                {"role": "system", "content": agent.instruction},
-                {"role": "user", "content": user_message},
-            ],
-            temperature=self.temperature,
-        )
+        from openai import RateLimitError
+
+        for attempt in range(len(self.rate_limit_retry_delays) + 1):
+            try:
+                completion = client.chat.completions.create(
+                    model=self.model,
+                    messages=[
+                        {"role": "system", "content": agent.instruction},
+                        {"role": "user", "content": user_message},
+                    ],
+                    temperature=self.temperature,
+                )
+                break
+            except RateLimitError:
+                if attempt == len(self.rate_limit_retry_delays):
+                    raise
+                delay = self.rate_limit_retry_delays[attempt]
+                print(f"Nhà cung cấp giới hạn lượt gọi; thử lại sau {delay}s.", flush=True)
+                await asyncio.sleep(delay)
         text = (completion.choices[0].message.content or "").strip()
 
         for hook in self.output_hooks:
