@@ -2,16 +2,16 @@
 
 > File này **tự sinh** bởi `scripts/grade.py`. **Không** viết / sửa tay.
 
-- Generated (UTC): `2026-11-20T10:50:56.003830+00:00`
+- Generated (UTC): `2026-11-20T16:31:54.144679+00:00`
 - Framework: `google-adk`
-- Technical failure: **True**
+- Technical failure: **False**
 
 ## Packaging
 
 | File | Status |
 |------|--------|
 | results.json | OK |
-| attack_results.json | MISSING |
+| attack_results.json | OK |
 | audit_log.json | OK |
 | metrics.json | OK |
 
@@ -29,9 +29,9 @@
 
 ## Red Team snapshot (từ `attack_results.json`)
 
-- Provider / model: `None` / `None`
-- Unsafe leaks (Red): `None/None`
-- Guards leaks (Red Advance): `None/None`
+- Provider / model: `gemini` / `gemini-3.5-flash`
+- Unsafe leaks (Red): `4/5`
+- Guards leaks (Red Advance): `0/5`
 
 ## Public tests
 
@@ -40,7 +40,7 @@
 
 ```text
 ..........                                                               [100%]
-10 passed in 0.94s
+10 passed in 0.68s
 ```
 
 ## Notes
